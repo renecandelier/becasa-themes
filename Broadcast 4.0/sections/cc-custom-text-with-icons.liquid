@@ -1,0 +1,217 @@
+{%- liquid
+  assign unique = 'SectionColumns--' | append: section.id
+  assign animation_order = 0
+  assign animation_anchor = unique | prepend: '#'
+-%}
+{% if section.blocks.size > 0 %}
+<div id="{{ unique }}"
+  class="section-columns section-padding"
+  data-section-id="{{ section.id }}"
+  data-section-type="columns">
+  <div class="{{ section.settings.width }}">
+    <div class="cc__inner-columns-text">
+        {% for block in section.blocks %}
+            {% liquid
+                assign image = block.settings.icon_image
+                assign title = block.settings.title
+                assign animation_order = animation_order | plus: 1
+            %}
+            <div class="cc__inner-column"
+                data-aos="hero"
+                data-aos-anchor="{{ animation_anchor }}"
+                data-aos-order="{{ animation_order }}"
+            >
+            <div class="cc__inner-container">
+                {% if title != blank %}
+                <h3>{{ title }}</h3>
+                {% endif %}
+                {% if image != blank %}
+                    <img class="cc__inner-image" src="{{ image | img_url: 'master' }}" alt="{{ image.alt }}" />
+                {% endif %}
+            </div>
+            </div>
+        {% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
+<style>
+    #shopify-section-{{ section.id }}{
+        padding-top: {{ section.settings.mpadding_top | append: 'px' }};
+        padding-bottom: {{ section.settings.mpadding_bottom | append: 'px' }};
+    }
+
+    #shopify-section-{{ section.id }} .cc__inner-container h3{
+        font-size: {{ section.settings.msize | append: 'px' }};
+        color: {{ section.settings.hcolor }};
+    }
+
+
+    #shopify-section-{{ section.id }} .cc__inner-column:not(:last-child):after{
+        content: "";
+        height: 76px;
+        width: 2px;
+        background-image: url({{  'CTAlines.png' |  asset_url }});
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: contain;
+        position: absolute;
+        top: 50%;
+        right: 0;
+        transform: translateY(-50%);
+        display: block;
+    }
+
+    #shopify-section-{{ section.id }} .cc__inner-column img{
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+    }
+
+    #shopify-section-{{ section.id }} .cc__inner-columns-text{
+        display: grid;
+        gap: 16px 0px;
+        grid-template-columns: 1fr;
+    }
+
+    #shopify-section-{{ section.id }} .cc__inner-column{
+        padding: 0 25px;
+    }
+
+
+    @media screen and (min-width: 750px){
+        #shopify-section-{{ section.id }} .cc__inner-container h3{
+            font-size: {{ section.settings.hsize | append: 'px' }};
+        }
+
+        #shopify-section-{{ section.id }}{
+            padding-top: {{ section.settings.padding_top | append: 'px' }};
+            padding-bottom: {{ section.settings.padding_bottom | append: 'px' }};
+        }
+
+        #shopify-section-{{ section.id }} .cc__inner-columns-text{
+            grid-template-columns: repeat(2, 50%);
+        }
+
+
+    }
+
+    @media screen and (min-width: 990px){
+        #shopify-section-{{ section.id }} .cc__inner-column{
+            padding: 0 50px;
+        }
+        #shopify-section-{{ section.id }} .cc__inner-columns-text{
+            grid-template-columns: repeat(4, 25%);
+        }
+    }
+</style>
+{% schema %}
+{
+    "name": "CC Column Content",
+    "settings": [
+       {
+            "type": "select",
+            "id": "width",
+            "label": "Width",
+            "default": "wrapper--full-padded",
+            "options": [
+            {"value": "wrapper--full-padded", "label": "Full width padded"},
+            {"value": "wrapper", "label": "Normal"}
+            ]
+        },
+        {
+            "type": "header",
+            "content": "Font size / style"
+        },
+        {
+            "type": "color",
+            "id": "hcolor",
+            "label": "Heading color",
+            "default": "#000"
+        },
+        {
+            "type": "number",
+            "id": "hsize",
+            "label": "Heading size (desktop)",
+            "default": 30,
+            "info": "Unit in px"
+        },
+        {
+            "type": "number",
+            "id": "msize",
+            "label": "Heading size (mobile)",
+            "default": 24,
+            "info": "Unit in px"
+        },
+        {
+            "type": "header",
+            "content" :"Section Padding"
+        },
+        {
+            "type": "range",
+            "id": "padding_top",
+            "label": "Padding top(desktop)",
+            "default": 80,
+            "step": 1,
+            "min": 0,
+            "max": 100,
+            "unit": "px"
+        },
+        {
+            "type": "range",
+            "id": "padding_bottom",
+            "label": "Padding bottom(desktop)",
+            "default": 80,
+            "step": 1,
+            "min": 0,
+            "max": 100,
+            "unit": "px"
+        },
+        {
+            "type": "range",
+            "id": "mpadding_top",
+            "label": "Padding top(mobile)",
+            "default": 48,
+            "step": 1,
+            "min": 0,
+            "max": 100,
+            "unit": "px"
+        },
+        {
+            "type": "range",
+            "id": "mpadding_bottom",
+            "label": "Padding bottom(mobile)",
+            "default": 48,
+            "step": 1,
+            "min": 0,
+            "max": 100,
+            "unit": "px"
+        }
+    ],
+    "blocks": [
+        {
+            "type": "columnicons",
+            "name": "Column Icons",
+            "settings": [
+                {
+                    "type": "image_picker",
+                    "id": "icon_image",
+                    "label": "Icon image"
+                },
+                {
+                    "type": "text",
+                    "id": "title",
+                    "label": "Title",
+                    "default": "Title"
+                }
+            ]
+        }
+    ],
+    "presets": [
+        {
+            "name": "CC Column Content"
+        }
+    ]
+}
+{% endschema %}

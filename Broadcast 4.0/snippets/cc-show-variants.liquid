@@ -1,0 +1,69 @@
+<show-variants>
+            {%  liquid
+              assign button_text = 'products.product.add_to_cart' | t
+              if preorder
+                assign button_text =  'products.product.pre_order' | t
+              endif
+
+              unless upsell_product.available
+                assign button_text =  'products.product.sold_out' | t
+              endunless
+            %}
+{%- form 'product', upsell_product, id: product_form_id -%}
+    <input type="hidden" name="id" value="{{ upsell_product.selected_or_first_available_variant.id }}">
+    {% if upsell_product.available %}
+                {% unless upsell_product.has_only_default_variant %}
+        <div class="cc__variantselector" id="{{ product_form_id }}" style=" --cardborder: {{ block.settings.cardvar_color }};">
+        {% for product in upsell_product.variants %}
+            {% if product.id == upsell_product.selected_or_first_available_variant.id %}
+            <div data-value="{{ product.id }}" class="current_selected">{{ product.title }}</div>
+            {% endif %}
+        {% endfor %}
+        <ul>
+            {% for product in upsell_product.variants %}
+            <li {% if product.available %}data-available="true"{% else %}data-available="false"{% endif %}data-price="{{ product.price | money }}" data-value="{{ product.id }}" class="">{{ product.title }}</li>
+        {% endfor %}
+        </ul>
+        </div>
+    {% endunless %}
+  {% endif %}
+    <div class="btn__outer">
+      <button class="btn btn--primary btn--solid"
+        type="submit"
+        name="add"
+        data-quick-add-btn
+        data-add-to-cart
+        style="
+                    --btn-bg:{{ block.settings.btn_bgcolor }};
+                    --btn-text: {{ block.settings.btn_tcolor }};
+                    --btn-border:{{ block.settings.btn_bcolor }};
+                    --btn-border-hover: {{ block.settings.btn_bcolor }};
+                    --btn-bg-hover: {{ block.settings.btn_bcolor }};
+                    --btn-text-hover: {{ block.settings.btn_htcolor }}"
+{% unless upsell_product.available %}disabled{% endunless %}
+      >
+
+        <span class="btn__text">{{ button_text }}</span>
+        <span class="btn__added">&nbsp;</span>
+
+        <span class="btn__loader">
+          <svg height="18" width="18" class="svg-loader">
+            <circle r="7" cx="9" cy="9" />
+            <circle stroke-dasharray="87.96459430051421 87.96459430051421" r="7" cx="9" cy="9" />
+          </svg>
+        </span>
+      </button>
+    </div>
+
+  {%- endform -%}
+  {% unless request.page_type == 'product' %}
+    {% unless upsell_product == empty %}
+    <script type="application/json" data-product-json>
+      {{ upsell_product | json }}
+    </script>
+    <script type="application/json" id="ModelJSON-{{ unique }}">
+      {{ upsell_product.media | where: 'media_type', 'model' | json }}
+    </script>
+  {% endunless %}
+{% endunless %}
+</show-variants>

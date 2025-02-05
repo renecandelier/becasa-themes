@@ -1,0 +1,295 @@
+<div class="cc__custom_instafed-outer-container">
+    <div class="cc__custom_instafeed-inner-container {{ section.settings.width }}">
+        {% if section.settings.title != blank or section.settings.insta_handle != blank %}
+        <div class="cc__custom_instafeed-header">
+            {% if section.settings.insta_handle != blank %}
+            <a href="https://www.instagram.com/{{ section.settings.insta_handle | remove: '@' | escape }}" target="_blank">{{ section.settings.insta_handle }}</a>
+            {% endif %}
+            {% if section.settings.title != blank %}
+            <h2 class="heading-size-{{ section.settings.heading_size }}">{{ section.settings.title }}</h2>
+            {% endif %}
+
+            {% if section.settings.content != blank %}
+            <div class="cc__custom_instafeed-conetnt">
+                {{ section.settings.content }}
+            </div>
+            {% endif %}
+
+            {%- if section.settings.show_social_links -%}
+                {%- render 'cc-social-icons' modifier: 'socials--instafeed' -%}
+            {%- endif -%}
+        </div>
+        {% endif %}
+        <div id="insta-feed"></div>
+    </div>
+</div>
+
+<style>
+    #shopify-section-{{ section.id }}{
+        padding-top: {{ section.settings.mpadding_top | append: 'px' }};
+        padding-bottom: {{ section.settings.mpadding_bottom | append: 'px' }};
+        background-color: {{ section.settings.bg_color }};
+        position: relative;
+        overflow: hidden;
+    }
+
+
+    #shopify-section-{{ section.id }} .socials li{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
+    #shopify-section-{{ section.id }} .socials li a{
+        margin: 0;
+    }
+
+    #shopify-section-{{ section.id }} .socials--instafeed{
+        justify-content: center;
+        margin-top: 14px;
+    }
+
+
+    #shopify-section-{{ section.id }} .cc__custom_instafeed-conetnt{
+        color: {{ section.settings.tcolor }};
+    }
+
+
+    #shopify-section-{{ section.id }} .wrapper{
+        {% if section.settings.full_width %}
+        padding: 0;
+        max-width: 100%;
+        {% endif %}
+        position: relative;
+    }
+
+    #shopify-section-{{ section.id }} .cc__custom_instafeed-header{
+        text-align: center;
+        width: fit-content;
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 30px;
+        position: relative;
+        z-index: 2;
+    }
+
+
+    #shopify-section-{{ section.id }} .socials svg{
+        width: 25px;
+        height: 25px;
+    }
+
+
+
+    #shopify-section-{{ section.id }} .cc__custom_instafeed-header h2{
+        margin: 0;
+        color: {{ section.settings.hcolor }};
+        letter-spacing: 1px;
+    }
+
+    #shopify-section-{{ section.id }} .cc__custom_instafeed-header a{
+        font-size: 14px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 0px;
+        font-weight: 400;
+        font-family: var(--FONT-STACK-BODY);
+        color: {{ section.settings.handlecolor }};
+    }
+
+    #shopify-section-{{ section.id }} .instafeed-new-layout-item{
+        width: 100% !important;
+        height: 100% !important;
+        padding-top: 100% !important;
+    }
+
+
+    #shopify-section-{{ section.id }} #insta-feed .instafeed-new-layout-wrapper{
+        display: grid !important;
+        gap: 5px !important;
+        grid-template-columns: repeat(2, 1fr)!important;
+        position: relative !important;
+        z-index: 5;
+    }
+
+    #shopify-section-{{ section.id }} .instafeed-new-layout-item:first-child:first-child {
+        grid-column: 1 / span 2;
+        grid-row: 1 / span 2;
+    }
+
+
+    #shopify-section-{{ section.id }} #insta-feed h2{
+        display: none !important;
+    }
+
+    #shopify-section-{{ section.id }} #insta-feed a{
+        z-index: 99 !important;
+    }
+
+    #shopify-section-{{ section.id }} #insta-feed .instafeed-container:nth-child(n+5){
+        display: none;
+    }
+
+
+    @media screen and (min-width: 769px){
+        #shopify-section-{{ section.id }}{
+            padding-top: {{ section.settings.dpadding_top | append: 'px' }};
+            padding-bottom: {{ section.settings.dpadding_bottom | append: 'px' }};
+        }
+
+        #shopify-section-{{ section.id }} #insta-feed .instafeed-new-layout-wrapper{
+            grid-template-columns: repeat(5, 1fr)!important;
+        }
+
+        
+        #shopify-section-{{ section.id }}:before{
+            content: "";
+            width: 100%;
+            height: 100%;
+            background-image: url({{ 'instafeed-backdrop.jpg' | asset_url }});
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: left center;
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    }
+
+</style>
+{% schema %}
+    {
+        "name": "CC Instafeed",
+        "settings": [
+            {
+            "type": "select",
+            "id": "width",
+            "label": "Width",
+            "default": "wrapper--full",
+            "options": [
+                {"value": "wrapper--full", "label": "Full width"},
+                {"value": "wrapper--full-padded", "label": "Full width padded"},
+                {"value": "wrapper", "label": "Normal"}
+            ]
+            },
+            {
+                "type": "text",
+                "id": "title",
+                "label": "Heading",
+                "default": "Join the Community"
+            },
+            {
+                "type":  "range",
+                "id":    "heading_size",
+                "label": "Heading Size",
+                "min": 1,
+                "max": 15,
+                "step": 1,
+                "default":5
+            },
+            {
+                "type": "richtext",
+                "id": "content",
+                "label": "Content"
+            },
+            {
+                "type": "text",
+                "id": "insta_handle",
+                "label": "Handle",
+                "default": "@instahandle"
+            },
+            {
+                "type": "checkbox",
+                "id": "show_social_links",
+                "label": "Show Social Links",
+                "default": true
+            },
+            {
+                "type": "header",
+                "content": "Styles"
+            },
+            {
+                "type": "color",
+                "id": "tcolor",
+                "label": "Text color",
+                "default": "#000"
+            },
+            {
+                "type": "color",
+                "id": "hcolor",
+                "label": "Heading color",
+                "default": "#000"
+            },
+            {
+                "type": "color",
+                "id": "handlecolor",
+                "label": "Handle color",
+                "default": "#000"
+            },
+            {
+                "type": "color",
+                "id": "hbcolor",
+                "label": "Header Border color",
+                "default": "#000"
+            },
+            {
+                "type": "color_background",
+                "id": "bgcolor",
+                "label":"Background gradient"
+            },
+            {
+                "type": "header",
+                "content": "Section padding"
+            },
+            {
+                "type": "range",
+                "id": "dpadding_top",
+                "min": 0,
+                "max": 100,
+                "step": 1,
+                "unit": "px",
+                "label": "Padding top(desktop)",
+                "default": 0
+            },
+            {
+                "type": "range",
+                "id": "dpadding_bottom",
+                "min": 0,
+                "max": 100,
+                "step": 1,
+                "unit": "px",
+                "label": "Padding bottom(desktop)",
+                "default": 0
+            },
+            {
+                "type": "range",
+                "id": "mpadding_top",
+                "min": 0,
+                "max": 100,
+                "step": 1,
+                "unit": "px",
+                "label": "Padding top(mobile)",
+                "default": 0
+            },
+            {
+                "type": "range",
+                "id": "mpadding_bottom",
+                "min": 0,
+                "max": 100,
+                "step": 1,
+                "unit": "px",
+                "label": "Padding bottom(mobile)",
+                "default": 0
+            }
+        ],
+        "presets": [
+            {
+                "name": "CC Instafeed"
+            }
+        ]
+    }
+{% endschema %}

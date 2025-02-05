@@ -1,0 +1,125 @@
+{% style %}
+  #shopify-section-{{section.id}} {
+    background-color: {{ section.settings.background_color }};
+  }
+
+  #shopify-section-{{section.id}} .brands-list-wrapper {
+    padding-top: {{ section.settings.section_spacing_mobile }}px;
+    padding-bottom: {{ section.settings.section_spacing_mobile }}px;
+  z-index:999;
+  }
+
+  @media screen and (min-width: 720px) {
+    #shopify-section-{{section.id}} .brands-list-wrapper {
+      padding-top: {{ section.settings.section_spacing_desktop }}px;
+      padding-bottom: {{ section.settings.section_spacing_desktop }}px;
+    }
+  }
+
+  #shopify-section-{{section.id}} .logolist--container h2 {
+    color: {{ section.settings.heading_color }};
+  }
+{% endstyle %}
+
+<section
+  class="logolist--container" id="brands-logolist">
+  {% for block in section.blocks %}
+    {% assign col = collections[block.settings.collection] %}
+    {% if col.title != blank %}
+      <div class="brands-list-wrapper" id="{{ col.handle }}">
+        {% if section.settings.hide_titles == false %} 
+        <div class="grid__heading-holder text-center">
+          <h2 class="grid__heading heading-size-7">
+            {% if block.settings.title != blank %}
+              {{ block.settings.title | escape }}
+            {% else %}
+              {{ col.title }}
+            {% endif %}
+          </h2>
+        </div>
+        {% endif %}
+        <div class="brands-list">
+          <ul>
+            {% for product_vendor in col.all_vendors %}
+              {% comment %}<li>{{ product_vendor | link_to_vendor }}</li>{% endcomment %}
+              <li><a href="../collections/{{ product_vendor | handleize }}/">{{ product_vendor }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    {% endif %}
+  {% endfor %}
+</section>
+
+
+{% schema %}
+{
+  "name": "Brand Listing",
+  "class": "logolist--section",
+  "max_blocks": 24,
+  "settings": [
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Section heading color",
+      "default": "#4D4D4D"
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_titles",
+      "label": "Hide Collection Titles",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "section_spacing_desktop",
+      "label": "Desktop section spacing",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "section_spacing_mobile",
+      "label": "Mobile section spacing",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 36
+    }
+  ],
+  "blocks": [
+    {
+      "type": "brand-list",
+      "name": "Brand List",
+      "settings": [
+        {
+          "id": "collection",
+          "type": "collection",
+          "label": "Collection to pull vendors from"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Optional Collection Heading Override"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "category": "Image",
+      "name": "Brand List"
+    }
+  ],
+  "templates": [
+    "index",
+    "product",
+    "page"
+  ]
+}
+
+{% endschema %}

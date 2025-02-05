@@ -1,0 +1,964 @@
+ <!-- /sections/section-collections-list.liquid -->
+
+ {%- liquid
+ assign title = section.settings.title
+ assign description = section.settings.description
+ assign button_text = section.settings.button_text
+ assign button_style = section.settings.button_style
+ if button_style == 'btn--text' and section.settings.show_arrow
+   assign button_style = button_style | append: ' btn--text-no-underline'
+ endif
+
+ assign has_content = false
+ if title != blank or description != blank or button_text != blank
+   assign has_content = true
+ endif
+
+ assign aspect_ratio = 1 | divided_by: section.settings.aspect_ratio
+
+ assign grid_columns = section.settings.grid
+ assign limit_onboarding = grid_columns
+ assign layout = section.settings.layout
+ assign layout_mobile = section.settings.layout_mobile
+ capture grid_classes
+   echo 'grid'
+
+   if layout == 'slider'
+     echo' grid--slider'
+   endif
+
+   if layout_mobile == 'slider'
+     echo ' grid--mobile-slider'
+   endif
+ endcapture
+
+ assign columns_desktop = grid_columns | plus: 0
+ assign columns_medium = 3
+ assign columns_small = 2
+ assign columns_mobile = layout_mobile | plus: 0
+
+   if columns_desktop == 2 or columns_desktop == 4
+   assign columns_medium = 2
+ endif
+
+ assign bg_color = section.settings.bg_color
+ assign text_color = section.settings.color
+
+ assign animation_anchor = '#CollectionsList--' | append: section.id
+-%}
+
+{%- style -%}
+ #CollectionsList--{{ section.id }} {
+   --PT: {{ section.settings.padding_top }}px;
+   --PB: {{ section.settings.padding_bottom }}px;
+
+   --COLUMNS: {{ columns_desktop }};
+   --COLUMNS-MEDIUM: {{ columns_medium }};
+   --COLUMNS-SMALL: {{ columns_small }};
+   --COLUMNS-MOBILE: {{ columns_mobile }};
+
+
+   {%- unless bg_color == 'rgba(0,0,0,0)' or bg_color == blank and section.settings.bgimage == blank -%}
+     --bg: {{ bg_color }};
+   {%- endunless -%}
+
+   {%- unless text_color == 'rgba(0,0,0,0)' or text_color == blank -%}
+     --text: {{ text_color }};
+   {%- endunless -%}
+ }
+
+ {% if section.settings.bgimage != blank %}
+ #shopify-section-{{ section.id }}{
+   background-image: url({{ section.settings.bgimage | img_url: 'master' }});
+   background-size: cover;
+   background-repeat: no-repeat;
+   background-position: center;
+ }
+ {% endif %}
+
+
+ {% if section.settings.turn_off_hover %}
+   #shopify-section-{{ section.id }} .collection-item__content:hover .collection-item__bg .image-wrapper{
+       transform: unset !important;
+   }
+{% endif %}
+
+{% if section.settings.full_width_no_pad %}
+   #shopify-section-{{ section.id }} .grid-outer{
+       --outer: 0px;
+   }
+{% endif %}
+
+
+ #shopify-section-{{ section.id }} .hidetitle-true .collection-item__info{
+     display: none !important;
+ }
+
+ #shopify-section-{{ section.id }} .grid{
+ --gap: {{ section.settings.gap | append: 'px'}};
+ }
+#shopify-section-{{ section.id }} img.cc__collectionactualimage {
+     display: block;
+     width: 100%;
+     height: 100%;
+ }
+
+#shopify-section-{{ section.id }} .grid__heading-holder {
+ margin-bottom: 12px;
+}
+
+
+#shopify-section-{{ section.id }} .grid__heading {
+ color: {{ section.settings.hcolor }};
+}
+
+#shopify-section-{{ section.id }} .grid__heading-text{
+ position: relative;
+ z-index: 2;
+}
+
+#shopify-section-{{ section.id }} .cc__shopthelook-inner-popup-container{
+   background-color: #fff;
+   position: relative;
+   z-index: 5;
+   width: 90vw;
+   max-width: 100%;
+ }
+
+ #shopify-section-{{ section.id }} .cc__shopthelook-inneritem-popup-container{
+   display: grid;
+   padding: 30px 20px 20px;
+   background-color: #fff;
+   position: relative;
+   z-index: 5;
+   gap: 10px;
+   overflow: hidden;
+ }
+
+ #shopify-section-{{ section.id }} .ccshopthelook-feature-image{
+   width: 100%;
+   overflow: hidden;
+   display:none;
+ }
+
+ #shopify-section-{{ section.id }} .ccshopthelook-feature-image img{
+   width: 100%;
+   height: 100%;
+   object-fit: cover;
+ }
+
+ #shopify-section-{{ section.id }} .cc__shopthelook-popup-container {
+   position: fixed;
+   top: 0%;
+   left: 0%;
+   width: 100%;
+   height: 100%;
+       overflow: hidden;
+   z-index: 9999;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   opacity: 0;
+   visibility: hidden;
+   transition: all 0.3s ease;
+ }
+
+  #shopify-section-{{ section.id }} .cc__shopthelook-popup-overlay{
+   content: "";
+   width: 100%;
+   height: 100%;
+   position: absolute;
+   top: 0;
+   left: 0;
+   background-color: rgba(0,0,0,0.4);
+   display: block;
+  }
+
+ #shopify-section-{{ section.id }} .cc__shopthelook-popup-container .grid{
+   padding: 0;
+   margin-left: 0;
+   margin-right: 0;
+ }
+
+ #shopify-section-{{ section.id }} .cc__shopthelook-open-popup{
+   visibility: visible;
+   opacity: 1;
+ }
+
+ #shopify-section-{{ section.id }} .shopthelook-list .btn__outer{
+   position: relative;
+   right: unset;
+   bottom: unset;
+ }
+
+ #shopify-section-{{ section.id }}  .collection-item__info{
+  {% if section.settings.colcontentcolor != 'transparent' %}
+  padding: 16px;
+  background-color: {{ section.settings.colcontentcolor }};
+  {% else %}
+   padding: 14px 10px 0;
+   {% endif %}
+   text-align: center;
+   letter-spacing: 0px;
+   font-weight: 400;
+   font-size: 16px;
+   color: {{ section.settings.coltitlecolor }};
+   font-family: var(--FONT-STACK-HEADING-REGULAR);
+ }
+
+ {% if section.settings.border != 0 %}
+ #shopify-section-{{ section.id }} .collection-item__image{
+   border: {{ section.settings.border | append: 'px' }} solid {{ section.settings.bordercolor }};
+ }
+ {% endif %}
+
+ #shopify-section-{{ section.id }} .collection-item{
+   background-color: transparent;
+ }
+
+ #shopify-section-{{ section.id  }} .cc__ctabtns{
+   font-family: var(--FONT-STACK-BODY);
+   font-weight: bold;
+   color: {{ section.settings.linklabel }};
+   font-size: 12px;
+   letter-spacing: 2.5px;
+   margin: 0;
+ }
+
+ #shopify-section-{{ section.id  }}  button.close-btn {
+   position: absolute;
+   top: -20px;
+   right: -10px;
+   width: 30px;
+   height: 30px;
+   background-color: #fff;
+   border-radius: 100%;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   z-index: 99;
+   font-weight: bold;
+}
+
+
+#shopify-section-{{ section.id }} .collection-item:hover .collection-item__info span{
+ background-size: 0% 1px;
+}
+
+#shopify-section-{{ section.id }} .hidecoltitle--true .collection-item__info span{
+ display: none;
+}
+
+#shopify-section-{{ section.id }} .quick-add__holder .product__block.product__block--buttons {
+ margin-bottom: unset !important;
+}
+
+
+#shopify-section-{{ section.id }} show-variants .cc__variantselector .current_selected{
+  border: 1px solid var(--cardborder);
+    color: #404040;
+}
+
+
+#shopify-section-{{ section.id }} .cc__variantselector .current_selected {
+  padding: 12px 5px;
+  border: 1px solid currentColor;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  background-image: url("{{ 'icon-select-bold.svg' | asset_url }}");
+  background-size: 14px;
+  background-repeat: no-repeat;
+  background-position: 96%;
+  background-color: #fff;
+}
+
+#shopify-section-{{ section.id }} .grid--slider .product-upsell__holder {
+  margin: 0;
+  height: 100%;
+}
+
+#shopify-section-{{ section.id }} .cc__variantselector {
+  position: relative;
+}
+
+#shopify-section-{{ section.id }} .cc__variantselector ul {
+  list-style: none;
+  margin: 0;
+  z-index: 999;
+  background-color: #fff;
+  max-height: 0;
+  visibility: hidden;
+  border-top: unset;
+  border: 1px solid currentColor;
+  overflow-y: auto;
+}
+
+#shopify-section-{{ section.id }} .cc__variantselector ul li {
+  font-size: 10px;
+  padding: 5px 10px;
+  transition: all 0.3s ease;
+}
+
+#shopify-section-{{ section.id }} .cc__variantselector ul li:hover {
+  background-color: #f3f3f3;
+}
+
+
+#shopify-section-{{ section.id }} show-variants .product__submit__item .btn {
+  font-size: 12px;
+  width: 100%;
+}
+
+#shopify-section-{{ section.id }} show-variants button[type="submit"] {
+  min-width: 100% !important;
+  letter-spacing: 2px;
+  font-weight: bold;
+  font-size: 12px;
+  padding: 9px 12px;
+}
+
+
+#shopify-section-{{ section.id }} show-variants .btn__outer:hover .btn__text {
+  padding-right: unset;
+}
+
+
+#shopify-section-{{ section.id }} show-variants .btn__outer {
+  width: 100%;
+}
+
+#shopify-section-{{ section.id }} .shopthelook-list .product__submit,
+#shopify-section-{{ section.id }} .shopthelook-list product-form {
+  width: 100%;
+}
+
+#shopify-section-{{ section.id }} .cc__variantselector.cc_vactive ul::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 4px;
+}
+
+#shopify-section-{{ section.id }} .cc__variantselector.cc_vactive ul::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, .5);
+  box-shadow: 0 0 1px rgba(255, 255, 255, .5);
+}
+
+
+#shopify-section-{{ section.id }} .cc__variantselector.cc_vactive ul {
+  display: block;
+  max-height: 200px;
+  visibility: visible;
+  padding: 5px 0;
+}
+
+
+#shopify-section-{{ section.id }} .cc__variantselector.cc_vactive .current_selected {
+  border-bottom: unset;
+}
+
+#shopify-section-{{ section.id }} [data-available="false"] {
+  pointer-events: none;
+  text-decoration: line-through;
+}
+
+#shopify-section-{{ section.id }} .without__variants.btn__outer:hover .btn__text {
+  padding-right: unset;
+}
+
+#shopify-section-{{ section.id }} .without__variants {
+  width: 100%;
+}
+
+
+#shopify-section-{{ section.id }} .without__variants button[type="submit"] {
+  min-width: 100% !important;
+  letter-spacing: 2px;
+  --btn-top: 10px;
+  margin-top: 12px;
+}
+
+@media screen and (max-width: 749.99px){
+ #shopify-section-{{ section.id }} .grid__heading-text{
+   margin-bottom: 0px;
+ }
+
+ #shopify-section-{{ section.id }} .grid__heading-holder.grid__heading-holder--inline{
+   text-align: center;
+ }
+}
+@media screen and (max-width: 990.99px){
+ #shopify-section-{{ section.id }} .collection-list-outer .slider__arrows{
+   right: 0;
+   left: 0;
+ }
+}
+
+@media screen and (min-width: 750px){
+ #shopify-section-{{ section.id  }}  button.close-btn {
+   position: absolute;
+   top: -20px;
+   right: -20px;
+   width: 40px;
+   height: 40px;
+ }
+
+ #shopify-section-{{ section.id  }} .grid__heading-holder--inline{
+  justify-content: flex-start;
+  gap: 26px;
+ }
+
+ #shopify-section-{{ section.id  }} .grid__heading-holder--inline .grid__heading-text{
+  flex: 0 1 fit-content;
+ }
+
+ #shopify-section-{{ section.id }} .grid__heading-text{
+  position: relative;
+  z-index: 2;
+  margin-bottom: 0px;
+  width: fit-content;
+}
+
+}
+
+ @media screen and (min-width: 900px){
+   #shopify-section-{{ section.id }} .cc__shopthelook-popup-container .grid--slider .grid-item{
+     flex: 0 0 calc(33.33% - var(--gap));
+     max-width: calc(33.33% - var(--gap));
+     
+   }
+
+   #shopify-section-{{ section.id }} .cc__shopthelook-inneritem-popup-container{
+     padding: 20px;
+     grid-template-columns: 30% 70%;
+   }
+
+   #shopify-section-{{ section.id }} .ccshopthelook-feature-image{
+     display: block;
+   }
+
+   #shopify-section-{{ section.id }}  .collection-item__info{
+     font-size: 22px;
+   }
+   #shopify-section-{{ section.id  }} .cc__ctabtns{
+     font-size: 12px;
+   }
+ }
+
+ @media screen and (min-width: 1280px){
+   #shopify-section-{{ section.id }} .cc__shopthelook-popup-container .grid--slider .grid-item{
+     flex: 0 0 calc(25% - var(--gap));
+     max-width: calc(25% - var(--gap));
+   }
+
+   #shopify-section-{{ section.id }} .cc__shopthelook-inneritem-popup-container{
+   grid-template-columns:22% 78%;
+}
+ }
+
+ @media screen and (max-width: 749.99px){
+   {% if section.settings.full_width_no_pad %}
+       #shopify-section-{{ section.id }} .grid-outer{
+         --outer-offset: 0;
+       }
+   {% endif %}
+ }
+
+ @media screen and (min-width: 1600px){
+  #shopify-section-{{ section.id }} .cc__shopthelook-inner-popup-container{
+   max-width: 1600px;
+}
+ }
+
+{%- endstyle -%}
+
+<section id="CollectionsList--{{ section.id }}"
+ class="index-collections-list section-padding hidecoltitle--{{ section.settings.hide_title }}"
+ data-section-id="{{ section.id }}"
+ data-section-type="list-collections">
+ <div class="grid-container{% if section.settings.headerlayout == 'left' %} grid-container--inline{% endif %}">
+   {%- if has_content -%}
+     <div class="grid__heading-holder{% if section.settings.headerlayout == 'inline' %} grid__heading-holder--inline{% elsif section.settings.headerlayout == 'left' %} grid__heading-holder--sticky{% elsif section.settings.headerlayout == 'center' %} text-center{% endif %}">
+       {%- if title != blank or description != blank -%}
+         <div class="grid__heading-text">
+           {%- if title != blank -%}
+             {%- assign animation_order = animation_order | plus: 1 -%}
+             <h2 class="grid__heading heading-size-5"
+               data-aos="hero"
+               data-aos-anchor="{{ animation_anchor }}"
+               data-aos-order="{{ animation_order }}"
+             >{{ title }}</h2>
+           {%- endif -%}
+
+           {%- if description != blank -%}
+             {%- assign animation_order = animation_order | plus: 1 -%}
+             <div class="grid__description"
+               data-aos="hero"
+               data-aos-anchor="{{ animation_anchor }}"
+               data-aos-order="{{ animation_order }}"
+             >
+               {{ description }}
+             </div>
+           {%- endif -%}
+         </div>
+       {%- endif -%}
+
+       {%- if button_text != blank -%}
+         {%- assign animation_order = animation_order | plus: 1 -%}
+         <div class="grid__heading-actions"
+           data-aos="hero"
+           data-aos-anchor="{{ animation_anchor }}"
+           data-aos-order="{{ animation_order }}">
+           <a class="btn {{ button_style }} {{ section.settings.button_size }} {{ section.settings.button_type }}" href="{{ section.settings.button_url }}">
+             <span>{{ button_text | escape }}</span>
+
+             {%- if section.settings.show_arrow -%}
+               {%- render 'icon-arrow-right' -%}
+             {%- endif -%}
+           </a>
+         </div>
+       {%- endif -%}
+     </div>
+   {%- endif -%}
+
+   <div class="grid__items-holder">
+     <div class="grid-outer collection-list-outer">
+       {%- liquid
+         capture collection_items
+           if section.blocks.size > 0
+             for block in section.blocks
+               assign animation_delay = forloop.index0 | times: 1
+               capture placeholder_index
+                 cycle 1, 2, 3, 5, 6
+               endcapture
+               render 'cc-shop-the-look-item', block: block, aspect_ratio: aspect_ratio, animation_delay: animation_delay, animation_anchor: animation_anchor, index: forloop.index, placeholder_index: placeholder_index
+             endfor
+           else
+             for i in (1..6)
+               assign animation_delay = forloop.index0 | times: 1
+               capture index
+                 cycle 1, 2, 3, 5, 6
+               endcapture
+               render 'cc-shop-the-look-item', block: block, aspect_ratio: aspect_ratio, animation_delay: animation_delay, animation_anchor: animation_anchor, index: index
+             endfor
+           endif
+         endcapture
+       -%}
+
+       {%- if layout == 'slider' or layout_mobile == 'slider' -%}
+         <grid-slider align-arrows>
+           <div class="mobile-swipe-tip">
+             <span>{{ 'general.mobile.mobile_swipe_tip' | t }}</span>
+             </div>
+           <div class="collection-list {{ grid_classes }}" data-grid-slider{% if request.design_mode %} data-block-scroll{% endif %}>
+             {{ collection_items }}
+           </div>
+         </grid-slider>
+       {%- else -%}
+         <div class="collection-list {{ grid_classes }}">
+           {{ collection_items }}
+         </div>
+       {%- endif -%}
+     </div>
+   </div>
+   {% if section.blocks.size > 0 %}
+   {% for block in section.blocks %}
+   {% if block.settings.collection != blank %}
+   {% assign collection = block.settings.collection %}
+   <div id="col{{ collection.id }}{{ section.id }}" class="cc__shopthelook-popup-container">
+       <div class="cc__shopthelook-popup-overlay"></div>
+       
+       <div class="cc__shopthelook-inner-popup-container">
+         <button data-target="col{{ collection.id }}{{ section.id }}" class="close-btn">X</button>
+
+         <div class="cc__shopthelook-inneritem-popup-container">
+          {% if block.settings.collection_image != blank %}
+          <div class="ccshopthelook-feature-image">
+            <img src="{{ block.settings.collection_image | img_url: 'master' }}" alt="{{ collection.title | append:' image' }}"/>
+          </div>
+          {% elsif collection.image != blank %}
+            <div class="ccshopthelook-feature-image">
+            <img src="{{ collection.image | img_url: 'master' }}" alt="{{ collection.title | append:' image' }}"/>
+          </div>
+          {% endif %}
+          <div class="cc__shopthelook-inneritems-container">
+             <grid-slider align-arrows>
+               <div class="mobile-swipe-tip">
+                 <span>{{ 'general.mobile.mobile_swipe_tip' | t }}</span>
+                 </div>
+               <div class="shopthelook-list grid grid--slider grid--mobile-slider" data-grid-slider{% if request.design_mode %} data-block-scroll{% endif %}>
+                 {% for product in collection.products %}
+                   {% assign animation_delay = forloop.index0 | times: 1 %}
+                   {% render 'cc-shop-the-look-item-list', product: product, animation_delay: animation_delay, index: forloop.index, block: section  %}
+                 {% endfor %}
+               </div>
+             </grid-slider>
+          </div>
+         </div>
+        </div>
+   </div>
+   {% endif %}
+   {% endfor %}
+   {% endif %}
+ </div>
+</section>
+
+{% schema %}
+{
+ "name": "CC Shop the Look",
+ "settings": [
+   {
+     "type": "text",
+     "id": "title",
+     "label": "Heading",
+     "default": "Shop the Look"
+   },
+   {
+     "type": "richtext",
+     "id": "description",
+     "label": "Text"
+   },
+   {
+       "type": "select",
+       "id": "headerlayout",
+       "label": "Layout",
+       "options": [
+         {
+           "value": "inline",
+           "label": "In-line"
+         },
+         {
+           "value": "center",
+           "label": "Center"
+         },
+         {
+           "value": "left",
+           "label": "Left"
+         }
+       ],
+       "default": "inline"
+     },
+   {
+     "type": "header",
+     "content": "Button"
+   },
+   {
+     "type": "text",
+     "id": "button_text",
+     "label": "Text"
+   },
+   {
+     "type": "url",
+     "id": "button_url",
+     "label": "Link",
+     "default": "/collections"
+   },
+   {
+     "type": "select",
+     "id": "button_type",
+     "label": "Color",
+     "default": "btn--primary",
+     "options": [
+       {"value": "btn--primary", "label": "Primary"},
+       {"value": "btn--secondary", "label": "Secondary"},
+       {"value": "btn--white", "label": "White"},
+       {"value": "btn--black", "label": "Black"}
+     ]
+   },
+   {
+     "type": "select",
+     "id": "button_size",
+     "label": "Size",
+     "default": "",
+     "options": [
+       { "label": "Small", "value": "btn--small" },
+       { "label": "Medium", "value": "" },
+       { "label": "Large", "value": "btn--large" }
+     ]
+   },
+   {
+     "type": "select",
+     "id": "button_style",
+     "label": "Style",
+     "default": "btn--solid",
+     "options": [
+       { "label": "Solid", "value": "btn--solid" },
+       { "label": "Outline", "value": "btn--outline" },
+       { "label": "Text", "value": "btn--text" }
+     ]
+   },
+   {
+     "type": "checkbox",
+     "id": "show_arrow",
+     "label": "Show arrow",
+     "default": false
+   },
+   {
+     "type": "select",
+     "id": "layout",
+     "label": "Layout",
+     "options": [
+       {
+         "value": "grid",
+         "label": "Grid"
+       },
+       {
+         "value": "slider",
+         "label": "Slider"
+       }
+     ],
+     "default": "grid"
+   },
+   {
+       "type": "checkbox",
+       "id": "full_width_no_pad",
+       "label": "Full width no padding",
+       "default": false
+     },
+   {
+     "type": "checkbox",
+     "id": "hide_title",
+     "label": "Hide Collection title",
+     "default": false
+   },
+   {
+     "type": "checkbox",
+     "id": "turn_off_hover",
+     "label": "Turn off hover effect",
+     "default": true
+   },
+   {
+     "type": "checkbox",
+     "id": "show_actual_image",
+     "label": "Show actual image size",
+     "default": false
+   },
+   {
+     "type": "range",
+     "id": "border",
+     "label": "Border",
+     "info": "Set to 0 to disable",
+     "unit": "px",
+     "default": 2,
+     "min": 0,
+     "max": 10
+   },
+   {
+     "type": "color",
+     "id": "bordercolor",
+     "label": "Border color",
+     "default": "#000"
+   },
+   {
+     "type": "range",
+     "id": "aspect_ratio",
+     "min": 0.5,
+     "max": 1.5,
+     "step": 0.1,
+     "unit": ":1",
+     "label": "Photo aspect ratio",
+     "info": "Wide to tall",
+     "default": 1
+   },
+   {
+     "type": "header",
+     "content": "Grid",
+     "info": "Applies only when layout is set to Grid"
+   },
+   {
+     "type":    "range",
+     "id":      "grid",
+     "label":   "Collections per row",
+     "min":     2,
+     "max":     6,
+     "step":    1,
+     "default": 4
+   },
+   {
+       "type": "number",
+       "id": "gap",
+       "label": "Gap",
+       "default": 10,
+       "info": "unit in px"
+   },
+   {
+     "type": "header",
+     "content": "Mobile"
+   },
+   {
+     "type": "select",
+     "id": "layout_mobile",
+     "label": "Layout",
+     "options": [
+       {
+         "value": "1",
+         "label": "1 collection per row"
+       },
+       {
+         "value": "2",
+         "label": "2 collections per row"
+       },
+       {
+         "value": "slider",
+         "label": "Slider"
+       }
+     ],
+     "default": "slider"
+   },
+   {
+     "type": "image_picker",
+     "id": "bgimage",
+     "label": "Background image"
+   },
+   {
+     "type": "header",
+     "content": "Colors"
+   },
+   {
+     "type": "color_background",
+     "id": "header_background",
+     "label": "Header background"
+   },
+   {
+     "type": "color",
+     "id": "bg_color",
+     "label": "Background"
+   },
+   {
+     "type": "color",
+     "id": "hcolor",
+     "label": "Heading Color",
+     "default": "#000"
+   },
+   {
+    "type": "color",
+    "id": "colcontentcolor",
+    "label": "Grid Title info background",
+    "default": "transparent"
+   },
+   {
+     "type": "color",
+     "id": "coltitlecolor",
+     "label": "Collection Title",
+     "default": "#000"
+   },
+   {
+     "type": "color",
+     "id": "linklabel",
+     "label": "Collection link label",
+     "default": "#000"
+   },
+   {
+     "type": "header",
+     "content": "Quick Add"
+   },
+   {
+     "type": "color",
+     "id": "cardvar_color",
+     "label": "Variant Selector Border",
+     "default": "#000"
+   },
+   {
+     "type": "color",
+     "id": "btn_bgcolor",
+     "label": "Button background",
+     "default": "#000"
+   },
+   {
+     "type": "color",
+     "id": "btn_tcolor",
+     "label": "Button Text",
+     "default": "#fff"
+   },
+   {
+     "type": "color",
+     "id": "btn_htcolor",
+     "label": "Button Text(hover)",
+     "default": "#fff"
+   },
+   {
+     "type": "color",
+     "id": "btn_bcolor",
+     "label": "Button Border",
+     "default": "#000"
+   },
+   {
+     "type": "header",
+     "content": "Section padding"
+   },
+   {
+     "type": "range",
+     "id": "padding_top",
+     "min": 0,
+     "max": 100,
+     "step": 1,
+     "unit": "px",
+     "label": "Padding top",
+     "default": 32
+   },
+   {
+     "type": "range",
+     "id": "padding_bottom",
+     "min": 0,
+     "max": 100,
+     "step": 1,
+     "unit": "px",
+     "label": "Padding bottom",
+     "default": 32
+   }
+ ],
+ "blocks": [
+   {
+     "type": "collection",
+     "name": "Collection",
+     "limit": 12,
+     "settings": [
+       {
+         "label": "Collection",
+         "id": "collection",
+         "type": "collection"
+       },
+       {
+         "type": "image_picker",
+         "id": "collection_image",
+         "label": "Image"
+       },
+       {
+         "label": "Heading",
+         "id": "title",
+         "type": "text"
+       },
+       {
+         "type": "text",
+         "id": "linklabel",
+         "label": "Link label",
+         "default": "Shop now ⇾"
+       }
+     ]
+   }
+ ],
+ "presets": [
+   {
+     "category": "Collection",
+     "name": "CC Shop the Look",
+     "blocks": [
+       {
+         "type": "collection"
+       },
+       {
+         "type": "collection"
+       },
+       {
+         "type": "collection"
+       },
+       {
+         "type": "collection"
+       }
+     ]
+   }
+ ],
+ "disabled_on": {
+   "groups": ["header", "aside", "footer"]
+ }
+}
+{% endschema %}

@@ -1,0 +1,59 @@
+{% comment %}Capital Commerce Customization {% endcomment %}
+{% for collection in product.collections %}
+  {% if collection.metafields.custom.look %}
+    {% assign in_look = true %}
+    {% break %}
+  {% endif %}
+{% endfor %}
+
+{% if in_look %}
+{% if block.settings.title != blank %}
+<p class="product__block-shopthelook-title" style="--titlecolor: {{ block.settings.btcolor }};">{{ block.settings.title }}</p>
+{% endif %}
+<div class="shopthelookstyle-{{ block.settings.style }}">
+<div class="product__block-shopthelook-inner" style="--tcolor: {{ block.settings.tcolor }}; --pricecolor: {{ block.settings.pcolor }}; --cdbg: {{ block.settings.cardbg_color }};">
+  {% if block.settings.style == 'carousel' %}
+  <grid-slider align-arrows>
+  <div class="mobile-swipe-tip">
+  <span>{{ 'general.mobile.mobile_swipe_tip' | t }}</span>
+  </div>
+  <div class="grid grid--slider grid--mobile-slider" data-grid-slider>
+  {% endif %}
+
+  {% for collection in product.collections %}
+      {% if collection.metafields.custom.look %}
+
+      {% assign currentCol = collection.title %}
+      {% assign currentColurl = collection.url %}
+
+
+      {% comment %}Here we loop through all products in the current LOOK collection{% endcomment %}
+      {% for product2 in collection.products %}
+          {% unless product2.id == product.id %}
+          {% if block.settings.show_variants %}
+
+              {% if block.settings.style == 'carousel' %}<div data-grid-item>{% endif %}
+
+              {%- render 'cc-upsell-product', upsell_product: product2, unique: unique, product_form_id: product_form_id, currentCol: currentCol, currentColurl: currentColurl, block: block, hide_variants: false -%}
+
+              {% if block.settings.style == 'carousel' %}</div>{% endif %}
+
+              {% else %}
+          
+              {% if block.settings.style == 'carousel' %}<div data-grid-item>{% endif %}
+              {%- render 'cc-upsell-product', upsell_product: product2, unique: unique, product_form_id: product_form_id, currentCol: currentCol, currentColurl: currentColurl, block: block, hide_variants: true -%}
+              {% if block.settings.style == 'carousel' %}</div>{% endif %}
+          {% endif %}
+          {% endunless %}
+      {% endfor %}
+
+      {% endif %}
+  {% endfor %}
+
+  {% if block.settings.style == 'carousel' %}
+      </div>
+  </grid-slider>
+  {% endif %}
+</div>
+</div>
+{% endif %}

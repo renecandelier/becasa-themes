@@ -1,0 +1,15 @@
+<div class="cc__variants-info-product">
+
+    {% for option in product.options_with_values %}
+        {% assign option_in_lowercase = option.name | downcase %}
+        {% if option_in_lowercase contains 'size' %}
+            {%- for value in option.values limit: 6 -%}
+
+            <a href="{{ product.variants[forloop.index0].url }}" class="cc__variants-info-text{%if product.variants[forloop.index0].available %}{% else %} cc__variant-soldout{% endif %}">{{ value }}</a>
+            {% if forloop.index == 6 %}
+              <span style="padding-left:5px; font-size:9px;">(more)</span>
+            {% endif %}
+            {%- endfor -%}
+        {% endif %}
+    {% endfor %}
+</div>

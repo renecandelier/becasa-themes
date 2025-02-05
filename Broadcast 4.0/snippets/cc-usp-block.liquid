@@ -1,0 +1,404 @@
+{% comment %}
+CAPITAL COMMERCE CUSTOMIZATION
+Icon block for Product page
+{% endcomment %}
+{%- liquid
+  assign image1 = block.settings.image1
+  assign icon_color = block.settings.icon_color1
+  assign inventory_tie = block.settings.inventory_tie
+
+  assign image2 = block.settings.image2
+  assign icon_color = block.settings.icon_color2
+
+  assign image3 = block.settings.image3
+  assign icon_color = block.settings.icon_color3
+
+
+  assign padding_bottom = block.settings.padding_bottom | default: 0
+
+  case block.settings.width
+    when 'full'
+      assign width = ' block__icon__container--full'
+    when 'half'
+      assign width = ' block__icon__container--half'
+    when 'third'
+      assign width = ' block__icon__container--third'
+    when 'quarter'
+      assign width = ' block__icon__container--quarter'
+  endcase
+
+  capture block_style
+    echo 'style="'
+    if icon_color != blank and icon_color != 'rgba(0,0,0,0)'
+      echo '--text: ' | append: icon_color | append: ';'
+    endif
+    echo '--block-padding-bottom: ' | append: padding_bottom | append: 'px;'
+    echo '"'
+  endcapture
+
+
+  if inventory_tie
+  assign show_remaining_class = ''
+  assign show_notice = 'always'
+  assign max_inventory = 5
+  assign hide_inventory_count = false
+  assign current_inventory = 0
+  assign has_unavailable_variants = false
+  assign show_buy_buttons = false
+  assign in_stock_color = block.settings.in_stock_color
+  assign low_stock_color = block.settings.low_stock_color
+  assign out_of_stock_color = block.settings.out_of_stock_color
+  assign buy_buttons = section.blocks | where: 'type', 'buttons'
+  if buy_buttons.size > 0
+    assign show_buy_buttons = true
+  endif
+
+  comment
+    Set a limit of the max inventory quantity to prevent a real quantity exposure
+  endcomment
+  assign max_inventory_quantity = max_inventory | plus: 1
+
+  if current_variant.inventory_management and current_variant.inventory_policy == 'deny'
+    if current_variant.inventory_quantity > 0 and current_variant.inventory_quantity <= max_inventory
+      assign show_remaining_class = 'count-is-low'
+      assign current_inventory = current_variant.inventory_quantity | at_most: max_inventory_quantity
+    elsif current_variant.inventory_quantity > 0 and current_variant.inventory_quantity > max_inventory and show_notice == 'always'
+      assign show_remaining_class = 'count-is-in'
+    elsif current_variant.inventory_quantity < 1 and show_notice == 'always'
+      assign show_remaining_class = 'count-is-out'
+    endif
+  endif
+
+  assign quantity_tracking = false
+  assign show_inventory = false
+  assign has_low_inventory = false
+  assign has_soldout = false
+  assign variants_inventory = product.variants | map: 'inventory_quantity'
+  for inventory_quantity in variants_inventory
+    if inventory_quantity > 0 and inventory_quantity < max_inventory
+      assign has_low_inventory = true
+    endif
+
+    if inventory_quantity < 1
+      assign has_soldout = true
+    endif
+  endfor
+
+  if has_low_inventory or has_soldout and show_notice == 'always'
+    assign show_inventory = true
+  endif
+
+  assign variant_count = 1
+  for option in product.options_with_values
+    assign variant_count = variant_count | times: option.values.size
+  endfor
+
+  if variant_count > product.variants.size
+    assign has_unavailable_variants = true
+  endif
+
+  if show_buy_buttons == false and has_unavailable_variants
+    assign show_inventory = true
+  endif
+
+  assign inventory_management = product.variants | where: 'inventory_management', 'shopify'
+  if inventory_management.size > 0
+    assign quantity_tracking = true
+  endif
+
+  assign icon_size = block.settings.icon_size1
+
+  capture in_stock_icon_color
+    echo 'style="'
+        echo '--icon-size: ' | append: icon_size | append: 'px;'
+        if in_stock_color != blank and in_stock_color != 'rgba(0,0,0,0)'
+            echo ' --icon-color: ' | append: in_stock_color | append: '"'
+        endif
+    echo '"'
+  endcapture
+
+  capture low_stock_icon_color
+    echo 'style="'
+        echo '--icon-size: ' | append: icon_size | append: 'px;'
+        if low_stock_color != blank and low_stock_color != 'rgba(0,0,0,0)'
+            echo ' --icon-color: ' | append: low_stock_color | append: '"'
+        endif
+    echo '"'
+  endcapture
+
+  capture out_of_stock_icon_color
+    echo 'style="'
+        echo '--icon-size: ' | append: icon_size | append: 'px;'
+        if out_of_stock_color != blank and out_of_stock_color != 'rgba(0,0,0,0)'
+            echo ' --icon-color: ' | append: out_of_stock_color | append: '"'
+        endif
+    echo '"'
+  endcapture
+
+  endif
+-%}
+
+
+<div class="product__block block__icon__row product__block_uspblock">
+
+{%- if block.settings.title1 != blank or image1 or inventory_tie -%}
+{% if inventory_tie %}
+<div class="product__block block__icon__container{{ width }} block-padding"
+    {{ block.shopify_attributes }}
+    {{ block_style }}
+    >
+    {%- liquid
+        assign icon_size = block.settings.icon_size1
+        assign icon_color = block.settings.icon_color1
+        capture icon_style
+        echo 'style="'
+        echo '--icon-size: ' | append: icon_size | append: 'px;'
+        if icon_color != blank and icon_color != 'rgba(0,0,0,0)'
+            echo ' --text: ' | append: icon_color | append: ';'
+        endif
+        echo '"'
+        endcapture
+    -%}
+
+    {%- if quantity_tracking and show_inventory or quantity_tracking and show_notice == 'always' -%}
+  {%- capture inventory -%}
+    <span data-remaining-count>{{ current_inventory | default: 0 }}</span>
+  {%- endcapture -%}
+  {%- assign font_size_class = block.settings.text_size1 | prepend: 'body-size-' -%}
+  <div class="product__block variant__countdown {{ show_remaining_class }} block__icon__text {{ font_size_class }}"
+    data-remaining-max="{{ max_inventory }}"
+    data-remaining-show-notice="{{ show_notice }}"
+    data-remaining-wrapper
+    
+    {{ block.shopify_attributes }}
+    {{ block_style }}>
+    <span class="variant__countdown--in"{{ in_stock_icon_color }} data-aos="img-in">
+ 
+        <span class="block__icon">
+        {%- liquid
+        if image1
+            assign icon_width = icon_size
+            assign icon_width_retina = icon_width | times: 2
+            assign icon_sizes = icon_width | append: 'px'
+            assign icon_widths = icon_width | append: ', ' | append: icon_width_retina
+
+            render 'image' image: image1, width: icon_width_retina, sizes: icon_sizes, widths: icon_widths, show_backfill: false
+        else
+            render 'cc-animated-icon', filename: block.settings.icon_name1
+        endif
+        -%}
+        </span>
+      <span class="variant__countdown-text {{ font_size_class }}" data-aos="fade" data-aos-duration="500">{{ 'products.product.in_stock' | t }}</span>
+    </span>
+    {%- if hide_inventory_count -%}
+      <span class="variant__countdown--low"{{ low_stock_icon_color }} data-aos="img-in">
+      
+        <span class="block__icon">
+        {%- liquid
+        if image1
+            assign icon_width = icon_size
+            assign icon_width_retina = icon_width | times: 2
+            assign icon_sizes = icon_width | append: 'px'
+            assign icon_widths = icon_width | append: ', ' | append: icon_width_retina
+
+            render 'image' image: image1, width: icon_width_retina, sizes: icon_sizes, widths: icon_widths, show_backfill: false
+        else
+            render 'cc-animated-icon', filename: block.settings.icon_name1
+        endif
+        -%}
+        </span>
+        <span class="variant__countdown-text {{ font_size_class }}" data-aos="fade" data-aos-duration="500">{{ 'products.product.remaining_no_count' | t }}</span>
+      </span>
+    {%- else -%}
+      <span class="variant__countdown--low"{{ low_stock_icon_color }} data-aos="img-in">
+      
+        <span class="block__icon">
+        {%- liquid
+        if image1
+            assign icon_width = icon_size
+            assign icon_width_retina = icon_width | times: 2
+            assign icon_sizes = icon_width | append: 'px'
+            assign icon_widths = icon_width | append: ', ' | append: icon_width_retina
+
+            render 'image' image: image1, width: icon_width_retina, sizes: icon_sizes, widths: icon_widths, show_backfill: false
+        else
+            render 'cc-animated-icon', filename: block.settings.icon_name1
+        endif
+        -%}
+        </span>
+        <span class="variant__countdown-text {{ font_size_class }}" data-aos="fade" data-aos-duration="500">{{ 'products.product.remaining_html' | t: inventory: inventory }}</span>
+      </span>
+    {%- endif -%}
+
+    <span class="variant__countdown--out"{{ out_of_stock_icon_color }} data-aos="img-in">
+      {% render 'icon-out-of-stock' %}
+      <span class="variant__countdown-text {{ font_size_class }}" data-aos="fade" data-aos-duration="500">{{ 'products.product.out_of_stock' | t }}</span>
+    </span>
+    <span class="variant__countdown--unavailable"{{ out_of_stock_icon_color }} data-aos="img-in">
+      {% render 'icon-out-of-stock' %}
+      <span class="variant__countdown-text {{ font_size_class }}" data-aos="fade" data-aos-duration="500">{{ 'products.product.item_unavailable' | t }}</span>
+    </span>
+
+    <script data-product-remaining-json type="application/json">
+      {
+        {%- liquid
+          for variant in product.variants
+            assign variant_id = variant.id | json
+
+            if variant.inventory_management and variant.inventory_policy == 'deny'
+              assign quantity = variant.inventory_quantity | at_most: max_inventory_quantity
+
+              if hide_inventory_count
+                if quantity < 1
+                  assign remaining_value = 'out'
+                elsif quantity > 0 and quantity < max_inventory
+                  assign remaining_value = 'low'
+                else
+                  assign remaining_value = 'in'
+                endif
+              else
+                assign remaining_value = quantity
+              endif
+            else
+              assign remaining_value = 'unavailable'
+            endif
+
+            echo '"' | append: variant_id | append: '": "' | append: remaining_value | append: '"'
+
+            unless forloop.last
+              echo ','
+            endunless
+          endfor
+        -%}
+      }
+    </script>
+  </div>
+{% endif %}
+    </div>
+    
+{% else %}
+    <div class="product__block block__icon__container{{ width }} block-padding"
+    {{ block.shopify_attributes }}
+    {{ block_style }}
+    >
+    {%- liquid
+        assign icon_size = block.settings.icon_size1
+        assign icon_color = block.settings.icon_color1
+        capture icon_style
+        echo 'style="'
+        echo '--icon-size: ' | append: icon_size | append: 'px;'
+        if icon_color != blank and icon_color != 'rgba(0,0,0,0)'
+            echo ' --text: ' | append: icon_color | append: ';'
+        endif
+        echo '"'
+        endcapture
+    -%}
+    <div class="block__icon" data-aos="img-in" {{ icon_style }}>
+        {%- liquid
+        if image1
+            assign icon_width = icon_size
+            assign icon_width_retina = icon_width | times: 2
+            assign icon_sizes = icon_width | append: 'px'
+            assign icon_widths = icon_width | append: ', ' | append: icon_width_retina
+
+            render 'image' image: image1, width: icon_width_retina, sizes: icon_sizes, widths: icon_widths, show_backfill: false
+        else
+            render 'cc-animated-icon', filename: block.settings.icon_name1
+        endif
+        -%}
+    </div>
+
+    {%- if block.settings.title1 != blank -%}
+        {%- assign font_size_class = block.settings.text_size1 | prepend: 'body-size-' -%}
+        <div class="block__icon__text {{ font_size_class }}" data-aos="fade" data-aos-duration="500">
+        <p>{{ block.settings.title1 }}</p>
+        </div>
+    {%- endif -%}
+    </div>
+{%- endif -%}
+{%- endif -%}
+
+{%- if block.settings.title2 != blank or image2 -%}
+    <div class="product__block block__icon__container{{ width }} block-padding"
+    {{ block.shopify_attributes }}
+    {{ block_style }}
+    >
+    {%- liquid
+        assign icon_size = block.settings.icon_size2
+        assign icon_color = block.settings.icon_color2
+        capture icon_style
+        echo 'style="'
+        echo '--icon-size: ' | append: icon_size | append: 'px;'
+        if icon_color != blank and icon_color != 'rgba(0,0,0,0)'
+            echo ' --text: ' | append: icon_color | append: ';'
+        endif
+        echo '"'
+        endcapture
+    -%}
+    <div class="block__icon" data-aos="img-in" {{ icon_style }}>
+        {%- liquid
+        if image2
+            assign icon_width = icon_size
+            assign icon_width_retina = icon_width | times: 2
+            assign icon_sizes = icon_width | append: 'px'
+            assign icon_widths = icon_width | append: ', ' | append: icon_width_retina
+
+            render 'image' image: image2, width: icon_width_retina, sizes: icon_sizes, widths: icon_widths, show_backfill: false
+        else
+            render 'cc-animated-icon', filename: block.settings.icon_name2
+        endif
+        -%}
+    </div>
+
+    {%- if block.settings.title2 != blank -%}
+        {%- assign font_size_class = block.settings.text_size2 | prepend: 'body-size-' -%}
+        <div class="block__icon__text {{ font_size_class }}" data-aos="fade" data-aos-duration="500">
+        <p>{{ block.settings.title2 }}</p>
+        </div>
+    {%- endif -%}
+    </div>
+{%- endif -%}
+
+
+{%- if block.settings.title3 != blank or image3 -%}
+    <div class="product__block block__icon__container{{ width }} block-padding"
+    {{ block.shopify_attributes }}
+    {{ block_style }}
+    >
+    {%- liquid
+        assign icon_size = block.settings.icon_size3
+        assign icon_color = block.settings.icon_color3
+        capture icon_style
+        echo 'style="'
+        echo '--icon-size: ' | append: icon_size | append: 'px;'
+        if icon_color != blank and icon_color != 'rgba(0,0,0,0)'
+            echo ' --text: ' | append: icon_color | append: ';'
+        endif
+        echo '"'
+        endcapture
+    -%}
+    <div class="block__icon" data-aos="img-in" {{ icon_style }}>
+        {%- liquid
+        if image3
+            assign icon_width = icon_size
+            assign icon_width_retina = icon_width | times: 2
+            assign icon_sizes = icon_width | append: 'px'
+            assign icon_widths = icon_width | append: ', ' | append: icon_width_retina
+
+            render 'image' image: image1, width: icon_width_retina, sizes: icon_sizes, widths: icon_widths, show_backfill: false
+        else
+            render 'cc-animated-icon', filename: block.settings.icon_name3
+        endif
+        -%}
+    </div>
+
+    {%- if block.settings.title3 != blank -%}
+        {%- assign font_size_class = block.settings.text_size3 | prepend: 'body-size-' -%}
+        <div class="block__icon__text {{ font_size_class }}" data-aos="fade" data-aos-duration="500">
+        <p>{{ block.settings.title3 }}</p>
+        </div>
+    {%- endif -%}
+    </div>
+{%- endif -%}
+
+</div>

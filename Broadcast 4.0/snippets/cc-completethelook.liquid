@@ -1,0 +1,52 @@
+
+{%- liquid
+  assign limit = limit | default: 4
+  assign column_count = limit
+  assign layout_mobile = section.settings.layout_mobile
+  assign columns_small = 2
+  assign columns_mobile = layout_mobile | plus: 0
+
+  if limit > 4
+    assign column_count = '4'
+  endif
+
+  
+-%}
+
+{%- capture image_sizes -%}
+    {%- if settings.grid_style == 'compact' -%}
+      (min-width: 1400px) calc((100vw - 288px) / {{ columns_desktop }}), (min-width: 750px) calc((100vw - 258px) / {{ columns_medium }}), (min-width: 480px) calc(100vw / {{ columns_small }}), calc(100vw / {{ columns_mobile }})
+    {%- else -%}
+      (min-width: 1400px) calc((100vw - 288px - 100px) / {{ columns_desktop }} - 32px), (min-width: 750px) calc((100vw - 258px - 64px) / {{ columns_medium }} - 32px), (min-width: 480px) calc((100vw - 32px) / {{ columns_small }}), calc((100vw - 32px) / {{ columns_mobile }})
+    {%- endif -%}
+  {%- endcapture -%}
+
+<div class="complethelook__wrapper fade-toggle" id="CompleteTheLook-{{ section.id }}" {% if block %} {{ block.shopify_attributes }}{% endif %}>
+  <div class="grid-outer" style="--column-count: {{ column_count }}; --COLUMNS-SMALL: {{ columns_small }}; --COLUMNS-MOBILE: {{ columns_mobile }};">
+    <grid-slider align-arrows>
+        <div class="mobile-swipe-tip">
+        <span>{{ 'general.mobile.mobile_swipe_tip' | t }}</span>
+        </div>
+      <div class="completethelook__content grid grid--slider{% if layout_mobile == nil or layout_mobile == 'slider' %} grid--mobile-slider{% endif %}{% if limit <= 4 %} grid--slider-disabled{% endif %}"
+        data-grid-slider>
+        {% for collection in product.collections %}
+            {% if collection.metafields.custom.look %}
+      
+            {% assign currentCol = collection.title %}
+            {% assign currentColurl = collection.url %}
+            {% for product2 in collection.products %}
+                {%- assign grid_int = limit | times: 1 -%}
+              {%- assign animation_delay = forloop.index0 | modulo: grid_int | times: 1 -%}
+              
+                {% unless product2.id == product.id %}
+ 
+                    {%- render 'cc-completethelook-item', product: product2, animation_delay: animation_delay, index: forloop.index, sizes: image_sizes -%}
+
+                {% endunless %}
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+        </div>
+      </grid-slider>
+  </div>
+</div>
