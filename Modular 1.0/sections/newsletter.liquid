@@ -1,0 +1,74 @@
+{% comment %} Settings {% endcomment %}
+{% assign title = section.settings.title %}
+{% assign content = section.settings.content %}
+
+{% comment %} Section {% endcomment %}
+
+<style>
+  .center-block {
+  text-align: center;
+}
+</style>  
+
+<section class="container-wrap" data-section-type="newsletter">
+    <div class="container">
+            <div align="center" style="padding:20px"></div>
+
+
+        <div class="row row-lg">
+                <h1 class="bold">{{ title }}</h1>
+            {% if content != blank %}
+           <h2 class="inline u-center">{{ content }}</h2>
+            {% endif %}
+            {% form 'customer' %}
+                <div class="js-signUp-form signUp-form">
+                    <input type="hidden" id="contact_tags" name="contact[tags]" value="newsletter"/>
+                    <div class="inputGroup mc-field-group">
+                        <label for="mce-EMAIL" class="accessible-label">{{ 'general.slide_out_navigation.search_label' | t }}</label>
+                        <input class="signUp-input required email center-block" type="email" value="" name="contact[email]" id="mce-EMAIL" placeholder="{{ section.settings.placeholder }}">
+                        <input type="hidden" id="newsletter-first-name" name="contact[first_name]" value="Newsletter" />
+                        <input type="hidden" id="newsletter-last-name" name="contact[last_name]" value="Subscriber" />
+                    </div>
+                </div>
+                {% if form.posted_successfully? %}
+                    <div class="signUp-confirmation p">{{ 'general.newsletter_signup.success_message' | t }}</div>
+                {% elsif form.errors %}
+                    {{ form.errors | default_errors }}
+                {% endif %}
+            {% endform %}
+        </div>
+    </div>
+</section>
+
+
+
+
+{% comment %} Schema {% endcomment %}
+{% schema %}
+    {
+        "name": "Newsletter",
+        "settings": [ {
+            "type": "header",
+            "content": "Content"
+        }, {
+            "type": "text",
+            "id": "title",
+            "label": "Title",
+            "default": "Newsletter"
+        }, {
+            "type": "text",
+            "id": "content",
+            "label": "Content",
+            "default":"<p>Let's keep in touch</p>"
+        } , {
+			"type": "text",
+			"id": "placeholder",
+			"label": "Placeholder",
+			"default":"Enter Your Email"
+	}],
+        "presets": [ {
+            "category": "Promotional",
+            "name": "Newsletter"
+        } ]
+    }
+{% endschema %}

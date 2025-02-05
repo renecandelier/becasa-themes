@@ -1,0 +1,202 @@
+<style>
+ul{
+  list-style-type:none;
+  display:flex;
+  justify-content: center;
+
+}
+ul li{
+  display: list-item;
+  padding: 5px 10px;
+  color: black;
+  margin: 0 3px;
+}
+  
+span {
+  font-size:16px;
+}
+  
+</style>
+
+
+<section>
+    <footer>
+
+      <div align="center" style="padding:30px">
+   	 </div>
+ {% for block in section.blocks %}
+
+  {% case block.type %}
+         
+  	{% when 'link-list' %}
+
+                    {% assign nav = block.settings.nav  %}
+                    {% assign hideMobile = block.settings.hide_mobile %}
+
+                      <ul {{ block.shopify_attributes }}>
+                        {% for link in linklists[nav].links %}
+  
+   	 					<li>
+                          <b><a href="{{ link.url }}">{{ link.title }}</a></b>
+                        </li> 
+                        {% endfor %}
+  
+                    </ul>
+          {% endcase %}
+    {% endfor %}
+
+
+      <div align="center" style="padding:10px">
+   	 </div>
+
+     {% for block in section.blocks %}
+
+    {% case block.type %}
+
+
+ 	{% when 'social' %}
+      
+      
+  <ul>
+	{% if settings.pinterest_url != '' %}
+		<li class="footer-link footer-link-social">
+			<a href="{{settings.pinterest_url}}" target="_blank">
+				<span class="icon-pinterest"></span>
+            </a>
+		</li>
+	{% endif %} 
+          
+          
+	{% if settings.instagram_url != '' %}
+		<li class="footer-link footer-link-social">
+          <a href="{{settings.instagram_url}}" target="_blank">
+          	<span class="icon-instagram">
+            </span>
+          </a>
+		</li>
+	{% endif %}
+    
+    {% if settings.facebook_url != '' %}
+    	<li class="footer-link footer-link-social">
+          <a href="{{settings.facebook_url}}" target="_blank">
+            <span class="icon-facebook"></span>
+          </a>
+    </li>
+    {% endif %}
+
+  </ul> 
+
+
+    {% endcase %}
+      <div align="center" style="padding:10px">
+   	 </div>
+    {% endfor %}
+       
+  
+     <div align="center" style="padding:10px">
+   	 </div>
+           <div align="center" >
+		<a style="font-size:12px;" align="center" href="pages/terms-privacy" title="">TERMS & PRIVACY</a>
+            </div>
+      <div align="center" style="padding:10px"></div>
+
+
+   </footer>
+</section>
+
+{% schema %}
+   {
+  "name": "Footer",
+  "max_blocks": 4,
+  "blocks": [
+    {
+      "type": "link-list",
+      "name": "Link list",
+      "settings": [
+        {
+          "type": "link_list",
+          "id": "nav",
+          "label": "Footer column",
+          "default": "footer"
+        },
+        {
+          "type": "checkbox",
+          "id": "hide_mobile",
+          "label": "Hide on mobile",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "location",
+      "name": "Location",
+        "settings": [
+            {
+              "type": "text",
+              "id": "footer_location_title",
+              "label": "Location title",
+              "default":"Modular"
+            },
+            {
+              "type": "text",
+              "id": "footer_location_1",
+              "label": "Address line 1",
+              "default":"566 Emerson Street"
+            },
+            {
+              "type": "text",
+              "id": "footer_location_2",
+              "label": "Address line 2",
+              "default":"Palo Alto, California"
+            },
+            {
+              "type": "text",
+              "id": "footer_location_3",
+              "label": "Address line 3",
+              "default":"USA 66209"
+            },
+            {
+              "type": "text",
+              "id": "footer_location_url",
+              "label": "Google Maps URL",
+              "info": "[Find your location URL](https://support.google.com/maps/answer/144361?co=GENIE.Platform%3DDesktop&hl=en&oco=1)"
+            }
+        ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+        "settings": [
+            {
+              "type": "text",
+              "id": "heading",
+              "label": "Heading",
+              "default":"Modular"
+            },
+            {
+              "type": "textarea",
+              "id": "text",
+              "label": "Text",
+              "default":"This is an opportunity to leave your users with a final note about your store, i.e. your values, return policy, or guarantee."
+            }
+        ]
+    },
+    {
+      "type": "social",
+      "name": "Social media",
+        "settings": [
+            {
+              "type": "paragraph",
+              "content":"Edit your social settings and accounts in General settings"
+            },
+            {
+              "type": "text",
+              "id": "heading",
+              "label": "Heading",
+              "default":"Connect"
+            }
+        ]
+    }
+  ]
+}
+{% endschema %}

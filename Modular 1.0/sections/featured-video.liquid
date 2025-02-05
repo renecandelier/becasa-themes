@@ -1,0 +1,56 @@
+{% comment %} Settings {% endcomment %}
+{% assign title = section.settings.title %}
+{% assign content = section.settings.content %}
+
+{% comment %} Layout {% endcomment %}
+{% assign style = section.settings.style %}
+
+{% comment %} Section {% endcomment %}
+<section class="video-module container-wrap style-default" id="video-module-{{ section.id }}" data-section-type="featured-video">
+    {% if title != blank or content != blank %}
+    <div class="video-text-wrapper">
+    {% if title != blank %}
+        <h1 class="bold">{{ title }}</h1>
+    {% endif %}
+
+    {% if content != blank %}
+        {{ content }}
+    {% endif %}
+    </div>
+    {% endif %}
+    <div class="container">
+      <video width="100%" autoplay loop muted playsinline>
+     	<source src="{{ 'introVideoPano5MB.mp4' | asset_url }}"  type="video/mp4">
+    </video>  
+	      	
+    </div>
+</section>
+
+{% comment %} Schema {% endcomment %}
+{% schema %}
+    {
+        "name": "Featured video",
+        "class":"header--full",
+        "settings": [ {
+            "type": "header",
+            "content": "Content"
+        }, {
+            "type": "text",
+            "id": "title",
+            "label": "Title"
+        }, {
+            "type": "richtext",
+            "id": "content",
+            "label": "Content"
+        }, {
+            "id": "video_url",
+            "type": "video_url",
+            "label": "Video URL",
+            "accept": ["youtube", "vimeo"]
+        } ],
+        "presets": [ {
+            "category": "Video",
+            "name": "Featured video"
+        } ]
+    }
+{% endschema %}
